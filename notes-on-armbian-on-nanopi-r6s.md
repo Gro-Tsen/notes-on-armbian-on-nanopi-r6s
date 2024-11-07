@@ -34,6 +34,11 @@ There are three Ethernet ports on the NanoPi R6S:
 (This section is mostly not specific to the NanoPi R6S and is just the
 result of my trying to understand who gets what data from whence.)
 
+* I have had problems with U-Boot 24.5.1 (just doesn't boot — nothing
+  happens), so I put U-Boot 23.8.2 on hold.  No idea what is happening
+  here (maybe the newer U-Boot is incompatible with the overlay shown
+  below?).
+
 * The U-Boot is contained in the files
   `/usr/lib/linux-u-boot-legacy-nanopi-r6s/idbloader.img` (bootstrap?)
   and `/usr/lib/linux-u-boot-legacy-nanopi-r6s/u-boot.itb` (FIT
@@ -213,3 +218,33 @@ labeled "LAN1", see above):
     	};
     };
 
+Leave the addresses as `00 00 00 00 00 00` in this file!  (They get
+patched by the values found in the U-Boot environment, as explained
+above.)
+
+## Notes to self ##
+
+(The following points are of interest only to me, David A. Madore.)
+
+When setting up a new NanoPi:
+
+* Boot it from the SD card (power on with mask button held, power off,
+  power on again).  It should pick up an IP though DHCP on any port.
+
+* (Maybe run a dist-upgrade.)
+
+* Record serial from `cat /proc/cpuinfo`
+
+* Choose MAC addresses.  I use `f2:` followed by the 9 first digits of
+  serial, followed by the digits `c`, `9` and `8` for LAN2, LAN1 and
+  WAN respectively (as in their platform address).  Write them down.
+
+* `sudo armbian-config` → System → Install → 2 (“Boot from eMMC -
+  system on eMMC”) → 1 (“ext4”)
+
+* Reboot on new system.
+
+* Edit `/etc/udev/rules.d/75-persistent-net-mac-address.rules` and/or
+  `/etc/network/interfaces` to assign chosen MAC addresses to
+  interfaces, and maybe also set them at offset 0x380400 as explained
+  above.  Uninstall and purge network-manager.
